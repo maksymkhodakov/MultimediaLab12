@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Лабораторна робота № 2. Фільтрація, покращення та сегментація зображень.
 
@@ -57,6 +56,10 @@ def load_source_image() -> np.ndarray:
     return cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
 
 
+def mse(img1: np.ndarray, img2: np.ndarray) -> float:
+    return float(np.mean((img1.astype(np.float64) - img2.astype(np.float64)) ** 2))
+
+
 def psnr(img1: np.ndarray, img2: np.ndarray) -> float:
     return float(sk_psnr(img1, img2, data_range=255))
 
@@ -110,9 +113,9 @@ def part1_noise(img_bgr: np.ndarray) -> None:
 
     fig, axes = plt.subplots(1, 3, figsize=(12, 4))
     for ax, img, title in zip(
-        axes,
-        [img_bgr, gaussian_noisy, sp_noisy],
-        ["Оригінал", "Гаусів шум, sigma=0.1", "Сіль і перець, d=5%"],
+            axes,
+            [img_bgr, gaussian_noisy, sp_noisy],
+            ["Оригінал", "Гаусів шум, sigma=0.1", "Сіль і перець, d=5%"],
     ):
         ax.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
         ax.set_title(title)
@@ -282,6 +285,7 @@ def part5_research_experiment(img_bgr: np.ndarray) -> list:
                 "noise_type": "гаусів",
                 "sigma": sigma,
                 "filter": filter_name,
+                "mse": mse(img_bgr, result_img),
                 "psnr": psnr(img_bgr, result_img),
                 "ssim": ssim(img_bgr, result_img),
             })
@@ -304,20 +308,22 @@ def part5_research_experiment(img_bgr: np.ndarray) -> list:
                 "noise_type": "сіль-перець",
                 "sigma": sigma,
                 "filter": filter_name,
+                "mse": mse(img_bgr, result_img),
                 "psnr": psnr(img_bgr, result_img),
                 "ssim": ssim(img_bgr, result_img),
             })
 
     for row in rows:
         print(f"[{row['noise_type']:12s}] sigma={row['sigma']:.2f} | "
-              f"{row['filter']:12s} | PSNR={row['psnr']:6.2f} дБ | SSIM={row['ssim']:.4f}")
+              f"{row['filter']:12s} | MSE={row['mse']:8.2f} | "
+              f"PSNR={row['psnr']:6.2f} дБ | SSIM={row['ssim']:.4f}")
 
     with open(result_path("05_research_experiment.csv"), "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow(["Тип шуму", "sigma", "Фільтр", "PSNR, дБ", "SSIM"])
+        writer.writerow(["Тип шуму", "sigma", "Фільтр", "MSE", "PSNR, дБ", "SSIM"])
         for row in rows:
             writer.writerow([row["noise_type"], row["sigma"], row["filter"],
-                              f"{row['psnr']:.2f}", f"{row['ssim']:.4f}"])
+                             f"{row['mse']:.2f}", f"{row['psnr']:.2f}", f"{row['ssim']:.4f}"])
 
     # Графіки PSNR = f(sigma) окремо для кожного типу шуму.
     for noise_type in ["гаусів", "сіль-перець"]:

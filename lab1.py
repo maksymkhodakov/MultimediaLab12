@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Лабораторна робота № 1. Первинна обробка та представлення мультимедійних даних.
 
@@ -287,14 +286,25 @@ def part3_geometry(img_bgr: np.ndarray) -> dict:
     y0 = (h - crop_h) // 2
     cropped = img_bgr[y0:y0 + crop_h, x0:x0 + crop_w]
 
+    # Масштабування (scaling) -- окрема операція, не плутати з циклом
+    # "зменшити -> збільшити" нижче, який лише порівнює методи інтерполяції.
+    # Тут просто зменшуємо зображення вдвічі та збільшуємо у 1.5 раза
+    # відносно оригіналу (білінійна інтерполяція).
+    scaled_down = cv2.resize(img_bgr, (w // 2, h // 2), interpolation=cv2.INTER_LINEAR)
+    scaled_up = cv2.resize(img_bgr, (int(w * 1.5), int(h * 1.5)), interpolation=cv2.INTER_LINEAR)
+
     cv2.imwrite(result_path("03_rotated_30deg.png"), rotated)
     cv2.imwrite(result_path("03_cropped_center.png"), cropped)
+    cv2.imwrite(result_path("03_scaled_down_0.5x.png"), scaled_down)
+    cv2.imwrite(result_path("03_scaled_up_1.5x.png"), scaled_up)
+    print(f"Масштабування: оригінал {w}x{h} -> зменшено до {w // 2}x{h // 2} "
+          f"-> збільшено до {int(w * 1.5)}x{int(h * 1.5)}")
 
-    fig, axes = plt.subplots(1, 3, figsize=(12, 4))
+    fig, axes = plt.subplots(1, 4, figsize=(16, 4))
     for ax, img, title in zip(
         axes,
-        [img_bgr, rotated, cropped],
-        ["Оригінал", "Поворот на 30°", "Обрізання (центр)"],
+        [img_bgr, scaled_down, rotated, cropped],
+        ["Оригінал", "Масштабування 0.5x", "Поворот на 30°", "Обрізання (центр)"],
     ):
         ax.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
         ax.set_title(title)
