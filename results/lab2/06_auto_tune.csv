@@ -1,0 +1,16 @@
+Фільтр,Параметр,"PSNR, дБ"
+Gaussian,kernel=3,26.74
+Gaussian,kernel=5,26.70
+Gaussian,kernel=7,25.77
+Gaussian,kernel=9,25.01
+Gaussian,kernel=11,24.28
+Median,kernel=3,26.30
+Median,kernel=5,26.20
+Median,kernel=7,25.02
+Median,kernel=9,23.89
+Median,kernel=11,22.93
+Bilateral,d=5,27.14
+Bilateral,d=9,28.12
+Bilateral,d=13,27.86
+Bilateral,d=17,27.51
+НАЙКРАЩИЙ,Bilateral (9),28.12
